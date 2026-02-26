@@ -56,6 +56,69 @@ class HomeWork2:
         else:
             return None
         
+    
+    # Problem 2.1: Use pre-order traversal (root, left, right) to generate prefix notation
+    # return an array of elements of a prefix expression
+    # expected output for the tree from problem 1 is [*,+,3,4,2]
+    # you can see the examples in p2_traversals.csv
+
+    def prefixNotationPrint(self, head: TreeNode) -> list:
+        result = []
+
+        def helper(node):
+            if node is None:
+                return
+            
+            # first add the root
+            result.append(node.val)
+            
+            # then go to left subtree
+            helper(node.left)
+            
+            # then go to right subtree
+            helper(node.right)
+
+        helper(head)
+
+        return result
+
+    # Problem 2.2: Use in-order traversal (left, root, right) for infix notation with appropriate parentheses.
+    # return an array of elements of an infix expression
+    # expected output for the tree from problem 1 is [(,(,3,+,4,),*,2,)]
+    # you can see the examples in p2_traversals.csv
+
+    # don't forget to add parentheses to maintain correct sequence
+    # even the outermost expression should be wrapped
+    # treat parentheses as individual elements in the returned list (see output)
+
+    def infixNotationPrint(self, head: TreeNode) -> list:
+        result = []
+
+        def helper(node):
+            if node is None:
+                return
+            
+            # if this node has children, it is an operator
+            if node.left is not None or node.right is not None:
+                result.append("(")
+            
+            # go left
+            helper(node.left)
+            
+            # add current value
+            result.append(node.val)
+            
+            # go right
+            helper(node.right)
+            
+            # close parentheses if it was an operator
+            if node.left is not None or node.right is not None:
+                result.append(")")
+
+        helper(head)
+
+        return result
+        
     # Problem 2.3: Use post-order traversal (left, right, root) to generate postfix notation.
     # return an array of elements of a postfix expression
     # expected output for the tree from problem 1 is [3,4,+,2,*]
@@ -101,3 +164,21 @@ if __name__ == "__main__":
 
         assert output == postfix, f"P1 Test {i} failed: tree structure incorrect"
         print(f"P1 Test {i} passed")
+
+    
+    print("\nRUNNING TEST CASES FOR PROBLEM 2")
+    testcases = []
+    with open('p2_traversals.csv', 'r') as f:
+        testcases = list(csv.reader(f))
+
+    for i, row in enumerate(testcases, 1):
+        postfix_input, exp_pre, exp_in, exp_post = row
+        postfix = postfix_input.split(",")
+
+        root = homework2.constructBinaryTree(postfix)
+
+        assert homework2.prefixNotationPrint(root) == exp_pre.split(","), f"P2-{i} prefix failed"
+        assert homework2.infixNotationPrint(root) == exp_in.split(","), f"P2-{i} infix failed"
+        assert homework2.postfixNotationPrint(root) == exp_post.split(","), f"P2-{i} postfix failed"
+
+        print(f"P2 Test {i} passed")
