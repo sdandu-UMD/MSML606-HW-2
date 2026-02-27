@@ -202,13 +202,21 @@ class Stack:
     # DO NOT USE EVAL function for evaluating the expression
 
     def evaluatePostfix(self, exp: str) -> int:
+
+        # check empty input
+        if exp is None or exp.strip() == "":
+            raise ValueError("Empty postfix expression")
+
         stack = Stack()
-        elements = exp.split(" ")
+        elements = exp.split()
 
         for e in elements:
 
-            # if it's an operator
             if e == "+" or e == "-" or e == "*" or e == "/":
+
+                # check if there are at least two operands
+                if stack.top < 1:
+                    raise ValueError("Malformed expression: insufficient operands")
 
                 val2 = stack.pop()
                 val1 = stack.pop()
@@ -222,7 +230,7 @@ class Stack:
                 elif e == "*":
                     ans = val1 * val2
 
-                else:   # division
+                else:
                     if val2 == 0:
                         raise ZeroDivisionError("cannot divide by zero")
                     ans = int(val1 / val2)
@@ -230,8 +238,14 @@ class Stack:
                 stack.push(ans)
 
             else:
-                # assume it's a number
-                stack.push(int(e))
+                try:
+                    stack.push(int(e))
+                except ValueError:
+                    raise ValueError("Invalid token in expression")
+
+        # after processing, stack must contain exactly one value
+        if stack.top != 0:
+            raise ValueError("Malformed expression: too many operands")
 
         return stack.pop()
     
@@ -293,10 +307,18 @@ if __name__ == "__main__":
             if expected == "DIVZERO":
                 print(f"Test {idx} failed (expected division by zero)")
             else:
-                expected = int(expected)
+                if "E" in expected or "e" in expected:
+                    expected = int(float(expected))
+                else:
+                    expected = int(expected)
                 assert result == expected, f"Test {idx} failed: {result} != {expected}"
                 print(f"Test case {idx} passed")
+        
 
         except ZeroDivisionError:
             assert expected == "DIVZERO", f"Test {idx} unexpected division by zero"
             print(f"Test case {idx} passed (division by zero handled)")
+        
+        except ValueError:
+            assert expected == "VALERROR", f"Test {idx} unexpected value error"
+            print(f"Test case {idx} passed (value error handled)")
