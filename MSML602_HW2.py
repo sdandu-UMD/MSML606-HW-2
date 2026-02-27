@@ -25,37 +25,46 @@ class HomeWork2:
 
     def constructBinaryTree(self, input) -> TreeNode:
         stack = []
+
+        # check empty input
+        if input is None or len(input) == 0:
+            raise ValueError("Empty postfix expression")
+
         for element in input:
             element = element.strip()
-            
+
             # check if it is one of the operators
             if element == "+" or element == "-" or element == "*" or element == "/":
-                
-                # pop twice because operator needs two operands
+
+                # make sure there are at least two operands
+                if len(stack) < 2:
+                    raise ValueError("Invalid postfix expression (insufficient operands)")
+
                 rightNode = stack.pop()
                 leftNode = stack.pop()
-                
-                # create a new node for the operator
+
                 newNode = TreeNode(element)
-                
-                # attach children
                 newNode.left = leftNode
                 newNode.right = rightNode
-                
-                # push back to stack
+
                 stack.append(newNode)
-            
+
             else:
-                # if it's not an operator, treat it like a value
+                # basic validation that it is a number
+                try:
+                    int(element)
+                except ValueError:
+                    raise ValueError("Invalid token in postfix expression")
+
                 valueNode = TreeNode(element)
                 stack.append(valueNode)
 
-        # after processing everything, stack should have one element
-        if len(stack) > 0:
-            return stack[0]
-        else:
-            return None
-        
+        # after processing everything, there should be exactly one element
+        if len(stack) != 1:
+            raise ValueError("Malformed postfix expression (too many operands)")
+
+        return stack[0]
+            
     
     # Problem 2.1: Use pre-order traversal (root, left, right) to generate prefix notation
     # return an array of elements of a prefix expression
