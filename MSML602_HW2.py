@@ -144,6 +144,88 @@ class HomeWork2:
 
         return result
     
+class Stack:
+    # Implement your stack using either an array or a list
+    # (i.e., implement the functions based on the Stack ADT we covered in class)
+    # You may use Python's list structure as the underlying storage.
+    # While you can use .append() to add elements, please ensure the implementation strictly follows the logic we discussed in class
+    # (e.g., manually managing the "top" of the stack
+    
+    # Use your own stack implementation to solve problem 3
+
+    # initialize a stack
+    def __init__(self):
+        self.arr = []
+        self.top = -1   # start with empty stack
+
+    # add a value to the stack
+    def push(self, value):
+        self.arr.append(value)
+        self.top = self.top + 1
+
+    # delete the top of the stack
+    def pop(self):
+        if self.top == -1:
+            raise IndexError("Stack is empty")
+        
+        value = self.arr[self.top]
+        self.arr.pop()
+        self.top = self.top - 1
+        return value
+
+    # check to see if the stack is empty
+    def isEmpty(self):
+        if self.top == -1:
+            return True
+        return False
+
+    # Problem 3: Write code to evaluate a postfix expression using stack and return the integer value
+    # Use stack which you implemented above for this problem
+
+    # input -> a postfix expression string. E.g.: "5 1 2 + 4 * + 3 -"
+    # see the examples of test entries in p3_eval_postfix.csv
+    # output -> integer value after evaluating the string. Here: 14
+
+    # integers are positive and negative
+    # support basic operators: +, -, *, /
+    # handle division by zero appropriately
+
+    # DO NOT USE EVAL function for evaluating the expression
+
+    def evaluatePostfix(self, exp: str) -> int:
+        stack = Stack()
+        elements = exp.split(" ")
+
+        for e in elements:
+
+            # if it's an operator
+            if e == "+" or e == "-" or e == "*" or e == "/":
+
+                val2 = stack.pop()
+                val1 = stack.pop()
+
+                if e == "+":
+                    ans = val1 + val2
+
+                elif e == "-":
+                    ans = val1 - val2
+
+                elif e == "*":
+                    ans = val1 * val2
+
+                else:   # division
+                    if val2 == 0:
+                        raise ZeroDivisionError("cannot divide by zero")
+                    ans = int(val1 / val2)
+
+                stack.push(ans)
+
+            else:
+                # assume it's a number
+                stack.push(int(e))
+
+        return stack.pop()
+    
 # Main Function. Do not edit the code below
 if __name__ == "__main__":
     homework2 = HomeWork2()
@@ -182,3 +264,30 @@ if __name__ == "__main__":
         assert homework2.postfixNotationPrint(root) == exp_post.split(","), f"P2-{i} postfix failed"
 
         print(f"P2 Test {i} passed")
+
+    print("\nRUNNING TEST CASES FOR PROBLEM 3")
+    testcases = []
+    try:
+        with open('p3_eval_postfix.csv', 'r') as file:
+            reader = csv.reader(file)
+            for row in reader:
+                testcases.append(row)
+    except FileNotFoundError:
+        print("p3_eval_postfix.csv not found")
+
+    for idx, row in enumerate(testcases, start=1):
+        expr, expected = row
+
+        try:
+            s = Stack()
+            result = s.evaluatePostfix(expr)
+            if expected == "DIVZERO":
+                print(f"Test {idx} failed (expected division by zero)")
+            else:
+                expected = int(expected)
+                assert result == expected, f"Test {idx} failed: {result} != {expected}"
+                print(f"Test case {idx} passed")
+
+        except ZeroDivisionError:
+            assert expected == "DIVZERO", f"Test {idx} unexpected division by zero"
+            print(f"Test case {idx} passed (division by zero handled)")
